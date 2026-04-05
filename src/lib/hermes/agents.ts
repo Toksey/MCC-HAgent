@@ -73,3 +73,15 @@ export async function stepAgent(agentId: string): Promise<HermesAgent> {
     method: 'POST',
   });
 }
+
+// ── Operations ─────────────────────────────────────────────────
+
+export async function generateDocument(
+  agentId: string,
+  payload: { target: string; prompt: string }
+): Promise<{ content: string }> {
+  return hermesRequest<{ content: string }>(`/agents/${agentId}/generate`, {
+    method: 'POST',
+    body: payload,
+  });
+}

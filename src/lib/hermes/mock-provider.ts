@@ -4,6 +4,7 @@
  * Returns realistic data for all Hermes adapter functions when HERMES_API_URL is not set.
  * This allows the dashboard to be fully functional without a live Hermes backend.
  */
+import { HermesClientError } from './client';
 
 import type {
   HermesAgent,
@@ -277,6 +278,13 @@ export const mockAgents = {
   },
   async stepAgent(agentId: string): Promise<HermesAgent> {
     return this.updateAgent(agentId, { loopState: 'acting' });
+  },
+  async generateDocument(agentId: string, payload: { target: string; prompt: string }): Promise<{ content: string }> {
+    throw new HermesClientError({
+      statusCode: 501,
+      code: 'NOT_IMPLEMENTED',
+      message: 'Agent document generation not implemented in mock mode. Dashboard should use fallback template.',
+    });
   },
 };
 

@@ -21,6 +21,7 @@ const MOCK_MEMORIES = [
 ];
 
 vi.mock('@/lib/hermes', () => ({
+  isApiConfigured: vi.fn(() => false),
   agents: {
     getAgents: vi.fn(async () => [...MOCK_AGENTS]),
     getAgent: vi.fn(async (id: string) => {
@@ -39,6 +40,7 @@ vi.mock('@/lib/hermes', () => ({
     }),
     deleteAgent: vi.fn(async () => {}),
     getAgentPolicy: vi.fn(async (agentId: string) => ({ agentId, autonomyLevel: 'balanced', maxActionsPerHour: 60, allowedTools: [], blockedTools: [], requireApproval: false, updatedAt: new Date().toISOString() })),
+    generateDocument: vi.fn(async () => { throw new Error('Not implemented in mock'); }),
   },
   memory: {
     getAll: vi.fn(async () => [...MOCK_MEMORIES]),

@@ -49,6 +49,10 @@ export interface AgentUpdatePayload {
   skills?: string[];
 }
 
+export interface AgentDocumentGenerationResult {
+  content: string;
+}
+
 // ── Memory (OpenBrain) ─────────────────────────────────────────
 
 export type MemoryType = 'episodic' | 'semantic' | 'procedural' | 'reflection';

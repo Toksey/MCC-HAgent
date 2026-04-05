@@ -90,6 +90,7 @@ export default function TeamPage() {
   const [wizardTarget, setWizardTarget] = useState('IDENTITY.md');
   const [wizardPrompt, setWizardPrompt] = useState('');
   const [wizardGenerating, setWizardGenerating] = useState(false);
+  const [wizardMode, setWizardMode] = useState<'direct' | 'hermes' | 'local'>('hermes');
 
   const fetchAgents = () => {
     setLoading(true);
@@ -182,7 +183,7 @@ export default function TeamPage() {
       const res = await fetch('/api/documents/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ target: wizardTarget, prompt: wizardPrompt, agentContext: selectedAgent }),
+        body: JSON.stringify({ target: wizardTarget, prompt: wizardPrompt, agentContext: selectedAgent, mode: wizardMode }),
       });
       const d = await res.json();
       if (d.content) {
@@ -852,6 +853,27 @@ export default function TeamPage() {
             
             <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
               Generating content for <strong>{wizardTarget}</strong> (Target: {selectedAgent?.name})
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <label style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Generation Engine</label>
+              <div style={{ display: 'flex', gap: '8px', background: 'var(--bg-input)', padding: '6px', borderRadius: 'var(--radius-sm)' }}>
+                {(['hermes', 'direct', 'local'] as const).map(option => (
+                  <button
+                    key={option}
+                    onClick={() => setWizardMode(option)}
+                    style={{
+                      flex: 1, padding: '6px 12px', fontSize: '11px', fontWeight: 600,
+                      background: wizardMode === option ? 'var(--bg-elevated)' : 'transparent',
+                      border: `1px solid ${wizardMode === option ? 'var(--border-subtle)' : 'transparent'}`,
+                      color: wizardMode === option ? 'var(--text-primary)' : 'var(--text-tertiary)',
+                      borderRadius: '4px', cursor: 'pointer', transition: 'all 0.2s',
+                    }}
+                  >
+                    {option === 'hermes' ? 'Hermes Backend' : option === 'direct' ? 'Direct LLM (OpenAPI)' : 'Local Fallback'}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

@@ -23,7 +23,7 @@ import {
 
 // ── Runtime adapter selection ──────────────────────────────────
 
-function isMockMode(): boolean {
+export function isMockMode(): boolean {
   return !isApiConfigured();
 }
 
@@ -40,6 +40,7 @@ export const agents = {
   pause: (id: string) => isMockMode() ? mockAgents.pauseAgent(id) : agentsApi.pauseAgent(id),
   resume: (id: string) => isMockMode() ? mockAgents.resumeAgent(id) : agentsApi.resumeAgent(id),
   step: (id: string) => isMockMode() ? mockAgents.stepAgent(id) : agentsApi.stepAgent(id),
+  generateDocument: (id: string, p: Parameters<typeof agentsApi.generateDocument>[1]) => isMockMode() ? mockAgents.generateDocument(id, p) : agentsApi.generateDocument(id, p),
 };
 
 // ── Memory ─────────────────────────────────────────────────────
