@@ -28,6 +28,9 @@
     "start": "next start --port 34000",
     "lint": "eslint",
     "setup": "node bin/setup.js",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:ui": "vitest --ui",
     "postinstall": "echo '\\n🧠  Hermes Command installed. Run: npx mcc-hagent\\n'"
   },
   "engines": {
@@ -50,9 +53,12 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.183.1",
+    "@vitest/ui": "^3",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "jsdom": "^26",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^3"
   }
 }

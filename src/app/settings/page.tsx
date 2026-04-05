@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Globe, Key, Terminal, Cpu, RefreshCw, Shield, Play, AlertCircle, CheckCircle2, Clock, Wifi, Hash, ToggleLeft, ToggleRight, Trash2, Plus, Zap, Stethoscope, Database, Download, Heart } from 'lucide-react';
+import { Settings as SettingsIcon, Globe, Key, Terminal, Cpu, RefreshCw, Shield, Play, AlertCircle, CheckCircle2, Clock, Wifi, Hash, ToggleLeft, ToggleRight, Trash2, Plus, Zap, Stethoscope, Database, Download, Heart, Brain, Save, Loader2 } from 'lucide-react';
 
 interface SettingsData {
   meta: any;
@@ -27,7 +27,11 @@ interface CliResult {
 export default function SettingsPage() {
   const [data, setData] = useState<SettingsData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<'gateway' | 'env' | 'auth' | 'hooks' | 'cli' | 'system' | 'models' | 'credits'>('gateway');
+  const [tab, setTab] = useState<'gateway' | 'env' | 'auth' | 'hooks' | 'cli' | 'system' | 'models' | 'openbrain' | 'credits'>('gateway');
+  const [obUrl, setObUrl] = useState('');
+  const [obEnabled, setObEnabled] = useState(false);
+  const [obSaving, setObSaving] = useState(false);
+  const [obMessage, setObMessage] = useState('');
   const [saving, setSaving] = useState(false);
   const [cliOutput, setCliOutput] = useState<CliResult | null>(null);
   const [cliRunning, setCliRunning] = useState(false);
@@ -104,6 +108,7 @@ export default function SettingsPage() {
     { id: 'env', label: 'Env Vars', icon: Key },
     { id: 'auth', label: 'Auth Profiles', icon: Shield },
     { id: 'models', label: 'Models API', icon: Database },
+    { id: 'openbrain', label: 'OpenBrain', icon: Brain },
     { id: 'hooks', label: 'Hooks', icon: Zap },
     { id: 'cli', label: 'CLI Terminal', icon: Terminal },
     { id: 'system', label: 'System Info', icon: Cpu },
@@ -433,6 +438,68 @@ export default function SettingsPage() {
               </div>
             </div>
           )}
+          {/* OpenBrain */}
+          {tab === 'openbrain' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <h3 style={{ fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)', margin: '0 0 4px 0' }}>OpenBrain Connection</h3>
+                <p style={{ fontSize: '13px', color: 'var(--text-tertiary)', margin: 0 }}>Configure semantic, cross-agent continuous memory using Supabase pgvector.</p>
+              </div>
+
+              <div className="glass-card" style={{ padding: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '20px' }}>
+                  <div style={{ background: obEnabled ? 'rgba(16, 185, 129, 0.1)' : 'var(--bg-elevated)', padding: '12px', borderRadius: 'var(--radius-md)' }}>
+                    <Brain size={22} color={obEnabled ? 'var(--accent-primary)' : 'var(--text-muted)'} />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-primary)' }}>{obEnabled ? 'Memory Framework Active' : 'Memory Framework Disabled'}</div>
+                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px', lineHeight: 1.5 }}>
+                      When active, agents spawn the embedded <code>openbrain.cjs</code> MCP server and store cross-session memories in your Postgres cluster.
+                    </div>
+                  </div>
+                  <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={obEnabled} onChange={e => setObEnabled(e.target.checked)} style={{ display: 'none' }} />
+                    <div style={{ width: '44px', height: '24px', background: obEnabled ? 'var(--accent-primary)' : 'var(--border-strong)', borderRadius: '12px', position: 'relative', transition: 'background 0.2s' }}>
+                      <div style={{ width: '18px', height: '18px', background: 'white', borderRadius: '50%', position: 'absolute', top: '3px', left: obEnabled ? '23px' : '3px', transition: 'left 0.2s', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }} />
+                    </div>
+                  </label>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  <div>
+                    <label style={{ fontSize: '12px', fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>OpenBrain / Supabase URL</label>
+                    <input
+                      type="url" placeholder="https://abcdefghijklmnopqr.supabase.co"
+                      value={obUrl} onChange={e => setObUrl(e.target.value)} disabled={!obEnabled}
+                      style={{ width: '100%', padding: '10px 14px', background: !obEnabled ? 'var(--bg-card)' : 'var(--bg-elevated)', border: '1px solid var(--border-strong)', borderRadius: 'var(--radius-md)', color: !obEnabled ? 'var(--text-muted)' : 'var(--text-primary)', outline: 'none', opacity: !obEnabled ? 0.6 : 1, boxSizing: 'border-box' }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', marginTop: '8px' }}>
+                    {obMessage && (
+                      <div style={{ fontSize: '12px', color: 'var(--accent-primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <CheckCircle2 size={14} /> {obMessage}
+                      </div>
+                    )}
+                    <button
+                      disabled={obSaving}
+                      onClick={async () => {
+                        setObSaving(true);
+                        const res = await fetch('/api/memory', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: obUrl, enabled: obEnabled }) });
+                        const d = await res.json();
+                        setObMessage(d.message || 'Saved');
+                        setObSaving(false);
+                        setTimeout(() => setObMessage(''), 4000);
+                      }}
+                      style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 18px', background: 'var(--accent-primary)', border: 'none', borderRadius: 'var(--radius-md)', color: 'white', fontSize: '13px', fontWeight: 600, cursor: obSaving ? 'default' : 'pointer', opacity: obSaving ? 0.7 : 1 }}
+                    >
+                      {obSaving ? <><Loader2 size={14} className="animate-spin" /> Saving…</> : <><Save size={14} /> Save</>}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Credits */}
           {tab === 'credits' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>

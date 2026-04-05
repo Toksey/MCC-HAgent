@@ -36,6 +36,7 @@ import {
   Activity,
   Target,
   Shield,
+  DollarSign,
 } from 'lucide-react';
 import Image from 'next/image';
 
@@ -102,6 +103,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: 'Infrastructure',
     items: [
       { href: '/models', label: 'Models', icon: Database },
+      { href: '/budget', label: 'Budget', icon: DollarSign },
       { href: '/protocols', label: 'Protocols', icon: Server },
       { href: '/channels', label: 'Channels', icon: Radio },
       { href: '/plugins', label: 'Plugins', icon: Puzzle },
