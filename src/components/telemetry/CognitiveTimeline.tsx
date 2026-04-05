@@ -50,13 +50,13 @@ function TimelineNode({ action, isLast }: { action: CognitiveAction; isLast: boo
       {/* Content Block */}
       <div style={{ flex: 1, paddingBottom: isLast ? 0 : '24px' }}>
         <div 
-          onClick={() => action.payload && setExpanded(!expanded)}
+          onClick={() => action.metadata && setExpanded(!expanded)}
           style={{ 
             padding: '12px 14px', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-sm)',
-            border: '1px solid var(--border-subtle)', cursor: action.payload ? 'pointer' : 'default',
+            border: '1px solid var(--border-subtle)', cursor: action.metadata ? 'pointer' : 'default',
             display: 'flex', flexDirection: 'column', gap: '6px', transition: 'border 0.2s',
           }}
-          onMouseEnter={(e) => { if(action.payload) e.currentTarget.style.borderColor = 'var(--border-default)' }}
+          onMouseEnter={(e) => { if(action.metadata) e.currentTarget.style.borderColor = 'var(--border-default)' }}
           onMouseLeave={(e) => { e.currentTarget.style.borderColor = 'var(--border-subtle)' }}
         >
           {/* Header row */}
@@ -65,7 +65,7 @@ function TimelineNode({ action, isLast }: { action: CognitiveAction; isLast: boo
               <span style={{ fontSize: '11px', fontWeight: 700, color, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                 {action.type}
               </span>
-              {action.payload && (
+              {action.metadata && (
                 expanded ? <ChevronDown size={14} color="var(--text-muted)" /> : <ChevronRight size={14} color="var(--text-muted)" />
               )}
             </div>
@@ -79,8 +79,8 @@ function TimelineNode({ action, isLast }: { action: CognitiveAction; isLast: boo
             {action.content}
           </div>
 
-          {/* Expandable Payload */}
-          {expanded && action.payload && (
+          {/* Expandable Metadata */}
+          {expanded && action.metadata && (
             <div style={{ 
               marginTop: '8px', padding: '10px', background: 'var(--bg-card)', 
               borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-subtle)',
@@ -89,7 +89,7 @@ function TimelineNode({ action, isLast }: { action: CognitiveAction; isLast: boo
             }}>
               <CornerDownRight size={12} color="var(--text-muted)" style={{ flexShrink: 0, marginTop: 2 }} />
               <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
-                {typeof action.payload === 'string' ? action.payload : JSON.stringify(action.payload, null, 2)}
+                {typeof action.metadata === 'string' ? action.metadata : JSON.stringify(action.metadata, null, 2)}
               </pre>
             </div>
           )}
