@@ -1,0 +1,58 @@
+{
+  "name": "mcc-hagent",
+  "version": "1.0.0",
+  "description": "Hermes Command — Cognitive Mission Control for Autonomous Agents. Monitor, configure, and coordinate AI agent teams from a premium web dashboard.",
+  "author": "Toksey <https://github.com/Toksey>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Toksey/MCC-HAgent.git"
+  },
+  "homepage": "https://github.com/Toksey/MCC-HAgent#readme",
+  "keywords": [
+    "hermes-agent",
+    "ai-agents",
+    "cognitive-control",
+    "mission-control",
+    "dashboard",
+    "agent-management",
+    "nextjs",
+    "openbrain"
+  ],
+  "bin": {
+    "mcc-hagent": "./bin/cli.js"
+  },
+  "scripts": {
+    "dev": "next dev --port 34000",
+    "build": "next build",
+    "start": "next start --port 34000",
+    "lint": "eslint",
+    "setup": "node bin/setup.js",
+    "postinstall": "echo '\\n🧠  Hermes Command installed. Run: npx mcc-hagent\\n'"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "dependencies": {
+    "@react-three/drei": "^10.7.7",
+    "@react-three/fiber": "^9.5.0",
+    "lucide-react": "^0.468.0",
+    "next": "16.1.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "recharts": "^3.8.1",
+    "three": "^0.183.2"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@types/three": "^0.183.1",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
