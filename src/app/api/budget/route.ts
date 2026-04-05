@@ -3,15 +3,14 @@
  * Replaces: mc-storage (readMcJson/writeMcJson on MC_BUDGET_FILE) → telemetry-based
  */
 import { NextResponse } from 'next/server';
-import { telemetry } from '@/lib/hermes';
+import { telemetry, memory } from '@/lib/hermes';
 
 function currentMonthKey(): string {
   const now = new Date();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 }
 
-// In-memory budget store
-const budgetState = {
+const DEFAULT_BUDGET = {
   companyId: 'ws_default',
   monthKey: currentMonthKey(),
   hardCapUsd: 500,
@@ -28,9 +27,37 @@ const budgetState = {
   } as Record<string, number>,
 };
 
+// ── OpenBrain MCP Persistence Layer ────────────────────────────
+
+async function getBudgetState(): Promise<typeof DEFAULT_BUDGET> {
+  try {
+    const mems = await memory.getMemories('system-budget');
+    if (mems && mems.length > 0) {
+      const latest = mems[0];
+      return JSON.parse(latest.content);
+    }
+  } catch (err) {
+    console.warn('No budget memory found, using defaults.');
+  }
+  return { ...DEFAULT_BUDGET, monthKey: currentMonthKey() };
+}
+
+async function saveBudgetState(state: typeof DEFAULT_BUDGET) {
+  await memory.store('system-budget', {
+    content: JSON.stringify(state),
+    type: 'semantic',
+    tags: ['system', 'budget', state.monthKey]
+  });
+}
+
+// In-memory fallback is no longer used. See getBudgetState().
+
 export async function GET() {
   try {
-    const health = await telemetry.getSystemHealth();
+    const [health, budgetState] = await Promise.all([
+      telemetry.getSystemHealth(),
+      getBudgetState()
+    ]);
 
     const utilization = budgetState.hardCapUsd > 0
       ? Math.round((budgetState.currentSpendUsd / budgetState.hardCapUsd) * 100)
@@ -62,7 +89,8 @@ export async function GET() {
 
 export async function PUT(req: Request) {
   try {
-    const body = await req.json();
+    const body: any = await req.json();
+    const budgetState = await getBudgetState();
 
     if (body.hardCapUsd !== undefined) budgetState.hardCapUsd = body.hardCapUsd;
     if (body.softCapUsd !== undefined) budgetState.softCapUsd = body.softCapUsd;
@@ -79,6 +107,8 @@ export async function PUT(req: Request) {
         budgetState.alertTriggered = true;
       }
     }
+
+    await saveBudgetState(budgetState);
 
     return NextResponse.json({ ok: true, budget: budgetState });
   } catch (error) {
