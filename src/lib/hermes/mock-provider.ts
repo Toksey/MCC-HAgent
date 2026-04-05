@@ -293,7 +293,9 @@ export const mockMemory = {
     return MOCK_MEMORIES.filter(m => m.agentId === agentId);
   },
   async storeMemory(agentId: string, payload: MemoryStorePayload): Promise<MemoryEntry> {
-    return { id: uid(), agentId, content: payload.content, type: payload.type || 'episodic', relevance: 0.5, weight: 1, tags: payload.tags || [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    const mem: MemoryEntry = { id: uid(), agentId, content: payload.content, type: payload.type || 'episodic', relevance: 0.5, weight: 1, tags: payload.tags || [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    MOCK_MEMORIES.unshift(mem);
+    return mem;
   },
   async queryMemory(agentId: string, payload: MemoryQueryPayload): Promise<MemoryEntry[]> {
     const memories = MOCK_MEMORIES.filter(m => m.agentId === agentId);
