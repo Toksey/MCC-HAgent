@@ -410,6 +410,13 @@ function GoalsTab({ agentId, goals: initial }: { agentId: string; goals: Goal[] 
                       fontSize: '10px', fontWeight: 700, padding: '2px 7px', borderRadius: '99px',
                       background: `${PRIORITY_COLOR[goal.priority]}20`, color: PRIORITY_COLOR[goal.priority],
                     }}>{goal.priority.toUpperCase()}</span>
+                    {goal.author && (
+                      <span style={{
+                        fontSize: '9px', fontWeight: 600, padding: '2px 6px', borderRadius: '4px',
+                        background: goal.author === 'human' ? '#8b5cf620' : '#3b82f620',
+                        color: goal.author === 'human' ? '#c4b5fd' : '#93c5fd', border: '1px solid currentColor', opacity: 0.8
+                      }}>{goal.author.toUpperCase()}</span>
+                    )}
                     <button onClick={() => handleDelete(goal.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', padding: '2px', display: 'flex' }}>
                       <Trash2 size={11} />
                     </button>
@@ -591,6 +598,8 @@ export default function AgentDetailPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<PanelTab>('overview');
   const [loopControlling, setLoopControlling] = useState(false);
+  const [activatingHarness, setActivatingHarness] = useState(false);
+  const [harnessActive, setHarnessActive] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -640,6 +649,23 @@ export default function AgentDetailPage() {
       });
       await load();
     } finally { setLoopControlling(false); }
+  };
+
+  const handleActivateHarness = async () => {
+    setActivatingHarness(true);
+    try {
+      const res = await fetch('/api/activation/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'ACTIVATE_HARNESS', agentId })
+      });
+      if (res.ok) {
+        setHarnessActive(true);
+        setTimeout(() => load(), 500); // Reload to fetch new memories
+      }
+    } finally {
+      setActivatingHarness(false);
+    }
   };
 
   if (loading) {
@@ -739,6 +765,19 @@ export default function AgentDetailPage() {
               borderRadius: 'var(--radius-md)', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex',
             }}>
               <RefreshCw size={14} />
+            </button>
+            <div style={{ width: '1px', height: '24px', background: 'var(--border-subtle)', margin: '0 8px' }} />
+            <button onClick={handleActivateHarness} disabled={activatingHarness || harnessActive}
+              style={{
+                display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px',
+                background: harnessActive ? 'var(--bg-elevated)' : 'var(--accent-primary)',
+                border: harnessActive ? '1px solid var(--border-subtle)' : 'none',
+                borderRadius: 'var(--radius-md)', color: harnessActive ? '#34d399' : '#fff',
+                fontSize: '12px', fontWeight: 600, cursor: harnessActive ? 'default' : 'pointer',
+                transition: 'all 0.2s', opacity: activatingHarness ? 0.7 : 1
+              }}>
+              {activatingHarness ? <Loader size={13} className="animate-spin" /> : harnessActive ? <CheckCircle size={13} /> : <Zap size={13} fill="currentColor" />}
+              {harnessActive ? 'Harness Active' : 'Activate MCC Harness'}
             </button>
           </div>
         </div>

@@ -154,6 +154,7 @@ export interface Goal {
   description?: string;
   status: GoalStatus;
   priority: 'critical' | 'high' | 'normal' | 'low';
+  author?: 'human' | 'agent'; // Added for MCC Harness visibility
   subGoals: Goal[];
   parentGoalId?: string;
   progress: number; // 0–100
@@ -166,6 +167,7 @@ export interface GoalCreatePayload {
   title: string;
   description?: string;
   priority?: Goal['priority'];
+  author?: Goal['author'];
 }
 
 export interface GoalDecomposition {

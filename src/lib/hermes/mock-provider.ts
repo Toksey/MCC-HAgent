@@ -357,7 +357,7 @@ export const mockGoals = {
     return { ...goal };
   },
   async createGoal(agentId: string, payload: GoalCreatePayload): Promise<Goal> {
-    return { id: uid(), agentId, title: payload.title, description: payload.description, status: 'pending', priority: payload.priority || 'normal', progress: 0, subGoals: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    return { id: uid(), agentId, title: payload.title, description: payload.description, status: 'pending', priority: payload.priority || 'normal', author: payload.author || 'agent', progress: 0, subGoals: [], createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
   },
   async updateGoal(goalId: string, updates: Partial<Goal>): Promise<Goal> {
     const goal = MOCK_GOALS.find(g => g.id === goalId);

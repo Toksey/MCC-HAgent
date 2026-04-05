@@ -24,7 +24,7 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { agentId, title, description, priority, status } = body;
+    const { agentId, title, description, priority, status, author } = body;
 
     if (!title) return NextResponse.json({ error: 'Title is required' }, { status: 400 });
 
@@ -35,6 +35,7 @@ export async function POST(req: Request) {
       title,
       description,
       priority: priority || 'normal',
+      author: author || 'human',
     });
 
     // Apply status override if provided
